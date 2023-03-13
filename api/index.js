@@ -1,15 +1,22 @@
 import express from "express";
+import bodyParser from "body-parser";
 import dotenv from 'dotenv';
 dotenv.config()
 var app = express();
 import { createClient } from '@supabase/supabase-js'
 const supabase = createClient('https://kfkztucvexligmiubppm.supabase.co', process.env.API)
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.disable('etag')
 app.get('/listCourses', async function(req, res) {
-    const { data, error1 } = await supabase.from('Course').select()
-    res.end(JSON.stringify(data))
+    var { data, error1 } = await supabase.from('Course').select()
+    //console.log(JSON.stringify(data))
+    console.log('sent courses')
+    res.json(data)
 })
 app.get('/getCourse/:id', async function(req, res) {
     const {data, error} = await supabase.from('Course').select().eq('id',req.params.id)
+    console.log('sent course')
     res.end(JSON.stringify(data))
 })  
 app.get('/searchCourses/:str', async function (req, res) {
@@ -22,12 +29,16 @@ app.get('/getCoursesInGroup/:id', async function(req, res) {
 })
 app.post('/addCourse', async function (req, res) {
     const {error} = await supabase.from('Course').insert({year:req.body.year, semester:req.body.semester, teacher:req.body.teacher, group_id:req.body.group_id})
+    console.log('added course')
+    res.end('Success')
 })
-app.put('/updateCourse', async function      (req, res) {
+app.put('/updateCourse', async function (req, res) {
     const {error} = await supabase.from('Course').update({year:req.body.year, semester:req.body.semester, teacher:req.body.teacher, group_id:req.body.group_id}).eq('id',req.body.id)
+    console.log('hi')
 })
 app.delete('/deleteCourse/:id', async function (req, res) {
     const {error} = await supabase.from('Course').delete().eq('id',req.params.id)
+    console.log(error)
     res.end(req.params.id)
 })
 app.get('/listCourseGroups', async function(req, res) {
